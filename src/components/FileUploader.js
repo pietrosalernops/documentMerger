@@ -7,7 +7,6 @@ const FileUploader = ({ onFilesSelected, mergedPdfUrl, setMergedPdfUrl }) => {
   const [errorMessage, setErrorMessage] = useState('');
 
   const allowedFileTypes = ['image/png', 'image/jpeg', 'application/pdf'];
-  const maxFileSize = 5 * 1024 * 1024; // 5 MB
 
   const frontFileInputRef = useRef(null);
   const backFileInputRef = useRef(null);
@@ -15,34 +14,24 @@ const FileUploader = ({ onFilesSelected, mergedPdfUrl, setMergedPdfUrl }) => {
   const handleFileChange = (event, setFile) => {
     const file = event.target.files[0];
 
-    if (file) {
-      console.log('File caricato:', file);
-      if (!allowedFileTypes.includes(file.type)) {
+    if (file && allowedFileTypes.includes(file.type)) {
+      if (file.size > 5 * 1024 * 1024) { //5MB
         setFile(null);
-        setErrorMessage('Errore: Il file deve essere in formato PNG, JPEG o PDF.');
-      } else if (file.size > maxFileSize) {
-        setFile(null);
-        setErrorMessage('Errore: Il file non deve superare i 5MB.');
-      } else {
-        setFile(file);
-        setErrorMessage('');
+        setErrorMessage('Errore: Il file deve essere di massimo 5MB.');
+        return;
       }
+      setFile(file);
+      setErrorMessage('');
+      console.log("File caricato:", file);
     } else {
       setFile(null);
-      setErrorMessage('Errore: Nessun file caricato.');
+      setErrorMessage('Errore: Il file deve essere in formato PNG, JPEG o PDF.');
     }
   };
 
-  const handleMergeClick = async () => {
+  const handleMergeClick = () => {
     if (frontFile && backFile) {
-      console.log('Front File:', frontFile);
-      console.log('Back File:', backFile);
-      try {
-        await onFilesSelected(frontFile, backFile);
-      } catch (error) {
-        console.error("Errore durante la fusione dei file:", error);
-        setErrorMessage("Errore durante la fusione dei file.");
-      }
+      onFilesSelected(frontFile, backFile);
     } else {
       setErrorMessage("Carica entrambi i file.");
     }

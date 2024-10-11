@@ -1,38 +1,33 @@
 import { PDFDocument } from 'pdf-lib';
-import PDFMerger from 'pdf-merger-js/browser';
 
 export const mergeFiles = async (frontFile, backFile) => {
-  const merger = new PDFMerger();
   const pdfDoc = await PDFDocument.create();
-
-  const processFile = async (file) => {
+  
+  const files = [frontFile, backFile];
+  
+  for (const file of files) {
     const fileType = file.type;
 
-    if (fileType.includes('pdf')) {
-      await merger.add(file);
-    } else if (fileType.includes('image')) {
+    if (fileType.includes('image')) {
       const imageBytes = await file.arrayBuffer();
-      let image;
-
-      if (fileType.includes('png')) {
-        image = await pdfDoc.embedPng(imageBytes);
-      } else if (fileType.includes('jpeg') || fileType.includes('jpg')) {
-        image = await pdfDoc.embedJpg(imageBytes);
-      }
-
-      const page = pdfDoc.addPage();
+      const image = fileType.includes('png') 
+        ? await pdfDoc.embedPng(imageBytes) 
+        : await pdfDoc.embedJpg(imageBytes);
+        
+      const page = pdfDoc.addPage([image.width, image.height]);
       page.drawImage(image, {
         x: 0,
         y: 0,
-        width: page.getWidth(),
-        height: page.getHeight(),
+        width: image.width,
+        height: image.height,
       });
+    } else if (fileType.includes('pdf')) {
+      const existingPdfDoc = await PDFDocument.load(await file.arrayBuffer());
+      const pages = await pdfDoc.copyPages(existingPdfDoc, existingPdfDoc.getPageIndices());
+      pages.forEach((page) => pdfDoc.addPage(page));
     }
-  };
+  }
 
-  await processFile(frontFile);
-  await processFile(backFile);
-
-  const mergedPdfBlob = await merger.saveAsBlob();
-  return mergedPdfBlob;
+  const pdfBytes = await pdfDoc.save();
+  return new Blob([pdfBytes], { type: 'application/pdf' });
 };
