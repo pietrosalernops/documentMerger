@@ -13,7 +13,11 @@ const App = () => {
 
   return (
     <div className="container mt-5">
-      <FileUploader onFilesSelected={handleMerge} mergedPdfUrl={mergedPdfUrl} />
+      <FileUploader 
+        onFilesSelected={handleMerge} 
+        mergedPdfUrl={mergedPdfUrl} 
+        setMergedPdfUrl={setMergedPdfUrl}
+      />
     </div>
   );
 };

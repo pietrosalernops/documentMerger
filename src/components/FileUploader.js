@@ -1,12 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import './FileUploader.css';
 
-const FileUploader = ({ onFilesSelected, mergedPdfUrl }) => {
+const FileUploader = ({ onFilesSelected, mergedPdfUrl, setMergedPdfUrl }) => {
   const [frontFile, setFrontFile] = useState(null);
   const [backFile, setBackFile] = useState(null);
   const [errorMessage, setErrorMessage] = useState('');
 
   const allowedFileTypes = ['image/png', 'image/jpeg', 'application/pdf'];
+
+  const frontFileInputRef = useRef(null);
+  const backFileInputRef = useRef(null);
 
   const handleFileChange = (event, setFile) => {
     const file = event.target.files[0];
@@ -30,10 +33,18 @@ const FileUploader = ({ onFilesSelected, mergedPdfUrl }) => {
 
   const handleRemoveFrontFile = () => {
     setFrontFile(null);
+    setMergedPdfUrl(null);
+    if (frontFileInputRef.current) {
+      frontFileInputRef.current.value = '';
+    }
   };
 
   const handleRemoveBackFile = () => {
     setBackFile(null);
+    setMergedPdfUrl(null);
+    if (backFileInputRef.current) {
+      backFileInputRef.current.value = '';
+    }
   };
 
   return (
@@ -54,6 +65,7 @@ const FileUploader = ({ onFilesSelected, mergedPdfUrl }) => {
             type="file"
             className="form-control"
             onChange={(e) => handleFileChange(e, setFrontFile)}
+            ref={frontFileInputRef} 
           />
         </div>
         <div className="mb-3">
@@ -62,6 +74,7 @@ const FileUploader = ({ onFilesSelected, mergedPdfUrl }) => {
             type="file"
             className="form-control"
             onChange={(e) => handleFileChange(e, setBackFile)}
+            ref={backFileInputRef}
           />
         </div>
       </div>
@@ -72,11 +85,13 @@ const FileUploader = ({ onFilesSelected, mergedPdfUrl }) => {
             Carica
           </button>
         </div>
-        <div className={`col-md-6 mx-0 ${mergedPdfUrl ? "align-left" : "d-none"}`}>
-          <a href={mergedPdfUrl} download="merged_document.pdf" className="btn btn-success">
-            Scarica documento unito
-          </a>
-        </div>
+        {mergedPdfUrl && (
+          <div className="col-md-6 mx-0 align-left">
+            <a href={mergedPdfUrl} download="merged_document.pdf" className="btn btn-success">
+              Scarica documento unito
+            </a>
+          </div>
+        )}
       </div>
 
       <div className="uploaded-files mt-4">
