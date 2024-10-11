@@ -1,25 +1,21 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useState } from 'react';
+import { mergeFiles } from './utils/pdfUtils';
+import FileUploader from './components/FileUploader';
 
-function App() {
+const App = () => {
+  const [mergedPdfUrl, setMergedPdfUrl] = useState(null);
+
+  const handleMerge = async (frontFile, backFile) => {
+    const mergedPdfBlob = await mergeFiles(frontFile, backFile);
+    const mergedPdfUrl = URL.createObjectURL(mergedPdfBlob);
+    setMergedPdfUrl(mergedPdfUrl);
+  };
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className="container mt-5">
+      <FileUploader onFilesSelected={handleMerge} mergedPdfUrl={mergedPdfUrl} />
     </div>
   );
-}
+};
 
 export default App;
