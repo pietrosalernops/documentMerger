@@ -1,10 +1,11 @@
 import React, { useState, useRef } from 'react';
 import './FileUploader.css';
 
-const FileUploader = ({ onFilesSelected, mergedPdfUrl, setMergedPdfUrl }) => {
+const FileUploader = ({ onFilesSelected, mergedPdfUrl, setMergedPdfUrl, setCompression }) => {
   const [frontFile, setFrontFile] = useState(null);
   const [backFile, setBackFile] = useState(null);
   const [errorMessage, setErrorMessage] = useState('');
+  const [compressionValue, setCompressionValue] = useState(100);
 
   const allowedFileTypes = ['image/png', 'image/jpeg', 'application/pdf'];
 
@@ -53,6 +54,12 @@ const FileUploader = ({ onFilesSelected, mergedPdfUrl, setMergedPdfUrl }) => {
     }
   };
 
+  const handleCompressionChange = (event) => {
+    const value = Number(event.target.value);
+    setCompressionValue(value);
+    setCompression(value);
+  };
+
   return (
     <div className="file-uploader-container container mt-4">
       <h2 className="text-center mb-4">Carica documento d'identità</h2>
@@ -83,6 +90,18 @@ const FileUploader = ({ onFilesSelected, mergedPdfUrl, setMergedPdfUrl }) => {
             ref={backFileInputRef}
           />
         </div>
+      </div>
+
+      <div className="mb-3 text-center">
+        <label className="form-label">Seleziona la compressione (%)</label>
+        <input
+          type="range"
+          min="0"
+          max="100"
+          value={compressionValue}
+          onChange={handleCompressionChange}
+        />
+        <span>{compressionValue}%</span>
       </div>
 
       <div className="row text-center mb-4">
