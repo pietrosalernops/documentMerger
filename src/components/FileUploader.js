@@ -7,6 +7,7 @@ const FileUploader = ({ onFilesSelected, mergedPdfUrl, setMergedPdfUrl }) => {
   const [errorMessage, setErrorMessage] = useState('');
 
   const allowedFileTypes = ['image/png', 'image/jpeg', 'application/pdf'];
+  const maxFileSize = 5 * 1024 * 1024; // 5MB
 
   const frontFileInputRef = useRef(null);
   const backFileInputRef = useRef(null);
@@ -14,12 +15,20 @@ const FileUploader = ({ onFilesSelected, mergedPdfUrl, setMergedPdfUrl }) => {
   const handleFileChange = (event, setFile) => {
     const file = event.target.files[0];
 
-    if (file && allowedFileTypes.includes(file.type)) {
-      setFile(file);
-      setErrorMessage('');
+    if (file) {
+      if (!allowedFileTypes.includes(file.type)) {
+        setFile(null);
+        setErrorMessage('Errore: Il file deve essere in formato PNG, JPEG o PDF.');
+      } else if (file.size > maxFileSize) {
+        setFile(null);
+        setErrorMessage('Errore: Il file non deve superare i 5MB.');
+      } else {
+        setFile(file);
+        setErrorMessage('');
+      }
     } else {
       setFile(null);
-      setErrorMessage('Errore: Il file deve essere in formato PNG, JPEG o PDF.');
+      setErrorMessage('Errore: Nessun file caricato.');
     }
   };
 
