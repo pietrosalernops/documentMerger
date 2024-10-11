@@ -1,6 +1,7 @@
 import { PDFDocument } from 'pdf-lib';
+import compressPDF from 'pdf-compressor';
 
-export const mergeFiles = async (frontFile, backFile, compression) => {
+export const mergeFiles = async (frontFile, backFile, imageCompression, pdfCompression) => {
   const pdfDoc = await PDFDocument.create();
   
   const files = [frontFile, backFile];
@@ -18,8 +19,8 @@ export const mergeFiles = async (frontFile, backFile, compression) => {
         image = await pdfDoc.embedJpg(imageBytes);
       }
 
-      const width = image.width * (compression / 100); 
-      const height = image.height * (compression / 100);
+      const width = image.width * (imageCompression / 100); 
+      const height = image.height * (imageCompression / 100);
       
       const page = pdfDoc.addPage([width, height]);
       page.drawImage(image, {
@@ -36,5 +37,11 @@ export const mergeFiles = async (frontFile, backFile, compression) => {
   }
 
   const pdfBytes = await pdfDoc.save();
-  return new Blob([pdfBytes], { type: 'application/pdf' });
+
+  const compressedPdfBlob = await compressPDF(new File([pdfBytes], 'merged.pdf', { type: 'application/pdf' }), {
+    quality: pdfCompression / 100,
+    scale: imageCompression / 100,
+  });
+
+  return compressedPdfBlob;
 };

@@ -4,10 +4,11 @@ import FileUploader from './components/FileUploader';
 
 const App = () => {
   const [mergedPdfUrl, setMergedPdfUrl] = useState(null);
-  const [compression, setCompression] = useState(100);
+  const [imageCompression, setImageCompression] = useState(100);
+  const [pdfCompression, setPdfCompression] = useState(100);
 
   const handleMerge = async (frontFile, backFile) => {
-    const mergedPdfBlob = await mergeFiles(frontFile, backFile, compression);
+    const mergedPdfBlob = await mergeFiles(frontFile, backFile, imageCompression, pdfCompression);
     const mergedPdfUrl = URL.createObjectURL(mergedPdfBlob);
     setMergedPdfUrl(mergedPdfUrl);
   };
@@ -18,7 +19,8 @@ const App = () => {
         onFilesSelected={handleMerge} 
         mergedPdfUrl={mergedPdfUrl} 
         setMergedPdfUrl={setMergedPdfUrl}
-        setCompression={setCompression}
+        setImageCompression={setImageCompression}
+        setPdfCompression={setPdfCompression}
       />
     </div>
   );

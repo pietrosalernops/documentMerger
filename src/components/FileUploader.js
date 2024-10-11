@@ -1,11 +1,12 @@
 import React, { useState, useRef } from 'react';
 import './FileUploader.css';
 
-const FileUploader = ({ onFilesSelected, mergedPdfUrl, setMergedPdfUrl, setCompression }) => {
+const FileUploader = ({ onFilesSelected, mergedPdfUrl, setMergedPdfUrl, setImageCompression, setPdfCompression }) => {
   const [frontFile, setFrontFile] = useState(null);
   const [backFile, setBackFile] = useState(null);
   const [errorMessage, setErrorMessage] = useState('');
   const [compressionValue, setCompressionValue] = useState(100);
+  const [pdfCompressionValue, setPdfCompressionValue] = useState(100);
 
   const allowedFileTypes = ['image/png', 'image/jpeg', 'application/pdf'];
 
@@ -57,7 +58,13 @@ const FileUploader = ({ onFilesSelected, mergedPdfUrl, setMergedPdfUrl, setCompr
   const handleCompressionChange = (event) => {
     const value = Number(event.target.value);
     setCompressionValue(value);
-    setCompression(value);
+    setImageCompression(value);
+  };
+
+  const handlePdfCompressionChange = (event) => {
+    const value = Number(event.target.value);
+    setPdfCompressionValue(value);
+    setPdfCompression(value);
   };
 
   return (
@@ -93,7 +100,7 @@ const FileUploader = ({ onFilesSelected, mergedPdfUrl, setMergedPdfUrl, setCompr
       </div>
 
       <div className="mb-3 text-center">
-        <label className="form-label">Seleziona la compressione (%)</label>
+        <label className="form-label">Seleziona la dimensione dell'immagine (%)</label>
         <input
           type="range"
           min="0"
@@ -102,6 +109,18 @@ const FileUploader = ({ onFilesSelected, mergedPdfUrl, setMergedPdfUrl, setCompr
           onChange={handleCompressionChange}
         />
         <span>{compressionValue}%</span>
+      </div>
+
+      <div className="mb-3 text-center">
+        <label className="form-label">Seleziona la compressione del PDF (%)</label>
+        <input
+          type="range"
+          min="0"
+          max="100"
+          value={pdfCompressionValue}
+          onChange={handlePdfCompressionChange}
+        />
+        <span>{pdfCompressionValue}%</span>
       </div>
 
       <div className="row text-center mb-4">
