@@ -2,42 +2,37 @@ import { PDFDocument } from 'pdf-lib';
 import PDFMerger from 'pdf-merger-js/browser';
 
 export const mergeFiles = async (frontFile, backFile) => {
-  const frontFileType = frontFile.type;
-  const backFileType = backFile.type;
-  
   const merger = new PDFMerger();
-  const pdfDoc = await PDFDocument.create(); 
+  const pdfDoc = await PDFDocument.create();
 
-  if (frontFileType.includes('pdf')) {
-    await merger.add(frontFile); 
-  } else if (frontFileType.includes('image')) {
-    const frontImage = await pdfDoc.embedPng(await frontFile.arrayBuffer());
-    const frontPage = pdfDoc.addPage();
-    frontPage.drawImage(frontImage, { x: 0, y: 0, width: frontPage.getWidth(), height: frontPage.getHeight() });
-  }
+  const processFile = async (file) => {
+    const fileType = file.type;
 
-  if (backFileType.includes('pdf')) {
-    await merger.add(backFile); 
-  } else if (backFileType.includes('image')) {
-    const backImage = await pdfDoc.embedPng(await backFile.arrayBuffer());
-    const backPage = pdfDoc.addPage();
-    backPage.drawImage(backImage, { x: 0, y: 0, width: backPage.getWidth(), height: backPage.getHeight() });
-  }
+    if (fileType.includes('pdf')) {
+      await merger.add(file);
+    } else if (fileType.includes('image')) {
+      const imageBytes = await file.arrayBuffer();
+      let image;
 
-  if (frontFileType.includes('pdf') || backFileType.includes('pdf')) {
-    const pdfBytes = await pdfDoc.save();
-    const pdfBlob = new Blob([pdfBytes], { type: 'application/pdf' });
-    
-    if (frontFileType.includes('pdf')) {
-      await merger.add(pdfBlob); 
-    } else if (backFileType.includes('pdf')) {
-      await merger.add(pdfBlob); 
+      if (fileType.includes('png')) {
+        image = await pdfDoc.embedPng(imageBytes);
+      } else if (fileType.includes('jpeg') || fileType.includes('jpg')) {
+        image = await pdfDoc.embedJpg(imageBytes);
+      }
+
+      const page = pdfDoc.addPage();
+      page.drawImage(image, {
+        x: 0,
+        y: 0,
+        width: page.getWidth(),
+        height: page.getHeight(),
+      });
     }
+  };
 
-    const mergedPdfBlob = await merger.saveAsBlob();
-    return mergedPdfBlob;
-  } else {
-    const pdfBytes = await pdfDoc.save();
-    return new Blob([pdfBytes], { type: 'application/pdf' });
-  }
+  await processFile(frontFile);
+  await processFile(backFile);
+
+  const mergedPdfBlob = await merger.saveAsBlob();
+  return mergedPdfBlob;
 };
